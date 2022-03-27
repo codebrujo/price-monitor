@@ -1,0 +1,13 @@
+node_modules
+.env
+src/config/sequelize-cli/config.json
+logs
+public
+*.log
+src/security/*
+sandbox/*
+docker-compose.override.yml
+
+.idea/
+postgres/
+yarn.lock

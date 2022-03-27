@@ -1,0 +1,26 @@
+version: "3"
+services:
+  backend:
+    env_file:
+      - ./.env
+    container_name: rbsi
+    restart: always
+    build: .
+    healthcheck:
+      test: [ "CMD", "curl", "127.0.0.1:8080/api/v1/status" ]
+      interval: 5s
+      retries: 5
+    ports:
+      - "8080:8080"
+    entrypoint: npm run server
+    volumes:
+      - ./logs/:/home/node/d2c-poc-iot-finish-tablets-backend/logs
+  event_listener:
+    env_file:
+      - ./.env
+    container_name: rbsi_listener
+    restart: always
+    build: .
+    entrypoint: npm run userEvents
+    volumes:
+      - ./logs/:/home/node/d2c-poc-iot-finish-tablets-backend/logs

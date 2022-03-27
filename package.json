@@ -1,0 +1,50 @@
+{
+  "name": "price-monitor",
+  "version": "1.0.0",
+  "description": "Backend app for marketplace prices parsing and monitoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test npm run migrate && jest --detectOpenHandles",
+    "test:watch": "jest --watch",
+    "configureMigrations": "node ./src/cli/configureMigrations.js",
+    "cleanup": "node ./src/cli/cleanUp.js && npx sequelize-cli db:migrate:undo:all",
+    "migrate": "npm run configureMigrations && sequelize-cli db:migrate",
+    "initDb": "npm run configureMigrations && node ./src/cli/initDb.js",
+    "exec": "node ./src/index.js",
+    "devsrv": "cross-env NODE_ENV=development npm run migrate && nodemon --watch . ./src/index.js",
+    "server": "cross-env NODE_ENV=production npm run migrate && npm run exec"
+  },
+  "author": "Sogarkov",
+  "private": true,
+  "dependencies": {
+    "@shopify/shopify-api": "^1.4.1",
+    "axios": "^0.22.0",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "consolidate": "^0.16.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validation": "^3.0.8",
+    "helmet": "^4.6.0",
+    "http-status": "^1.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "morgan": "^1.10.0",
+    "nocache": "^3.0.1",
+    "node-cron": "^3.0.0",
+    "pg": "^8.7.1",
+    "puppeteer": "^13.1.3",
+    "sequelize": "^6.12.0",
+    "sequelize-cli": "^6.3.0",
+    "uuid": "^8.3.2",
+    "winston": "^3.3.3",
+    "winston-console-format": "^1.0.8"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.13"
+  }
+}

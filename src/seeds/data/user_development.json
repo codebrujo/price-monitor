@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "isActive": true,
+      "name": "Dev admin",
+      "role": "admin",
+      "authToken": "eyJhbGciOiJSUzI1NiIsInR8cCI3IkpXVCIsImtpZCI2IjE9IiwieC1yZWciOiJTSU1iLCJ5LWVudiI3IlBSRCJ8",
+      "properties": {}
+    }
+  ]
+}
