@@ -49,7 +49,7 @@ async function loadProduct(req, res, next, productId) {
     if (!record) {
       throw getModuleError(
         null,
-        `User id is not exist`,
+        `Product id is not exist`,
         arguments.callee.name,
         res,
         httpStatus.NOT_FOUND,
@@ -59,7 +59,7 @@ async function loadProduct(req, res, next, productId) {
   } catch (error) {
     e = getModuleError(
       error,
-      'User is not found',
+      'Product is not found',
       arguments.callee.name,
       res,
       httpStatus.NOT_FOUND
@@ -78,7 +78,7 @@ exports.loadProduct = loadProduct;
  * @public
  */
 exports.get = async (req, res, next) => {
-  res.json(service.getProduct(req.locals.product, req.user));
+  res.json(await service.getProduct(req.locals.product, req.user));
 };
 
 exports.getProducts = async (req, res, next) => {

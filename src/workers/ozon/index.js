@@ -12,6 +12,7 @@ const {
   parsePeriod,
   timesToParse,
   pageUrl,
+  source,
 } = require('./worker.config');
 
 const db = require('../../models');
@@ -76,14 +77,12 @@ const searchAndParse = async (searchString) => {
     return;
   }
   ++triesCounter;
-  console.log(`start parsing ${searchString}...`);
   await page.goto(
     `${pageUrl}search/?from_global=true&text=${searchString.replace(
       /  +/g,
       '+'
     )}`
   );
-  console.log(`wait for search results...`);
   await waitFor(1000);
   try {
     await page.waitForSelector('div.widget-search-result-container');
@@ -140,7 +139,7 @@ const searchAndParse = async (searchString) => {
         seller = container
           .querySelectorAll('div')[1]
           .querySelector('div > span > span').innerHTML;
-        seller = seller.substr(seller.indexOf(', продавец ') + 11);
+        seller = seller.substr(seller.indexOf(' продавец ') + 10);
       } catch (error) {
         continue;
       }
@@ -177,7 +176,6 @@ const searchAndParse = async (searchString) => {
     }
     return list;
   });
-  console.log(searchResults);
   triesCounter = 0;
   return searchResults;
 };
@@ -186,7 +184,6 @@ const parseNextProduct = async () => {
   if (!page) return;
   if (productsToParse.length === 0) return;
   const productToParse = productsToParse[0];
-  logger.info('Parse product');
   const searchStrings = await SearchString.findAll({
     where: {
       ProductId: productToParse.id,
@@ -206,10 +203,23 @@ const parseNextProduct = async () => {
   if (parseResults.length === 0) return;
   productsToParse.splice(0, 1);
   if (parseResults.length === 1 && parseResults.find((res) => res.hasError && res.message === 'No products')) {
-    productToParse.removeParseResults();
+    try {
+      productToParse.removeParseResults(source);
+    } catch (error) {
+      logger.error(
+        `${THIS_THREAD_ID}: error on removing parse results: ${error.message}`
+      );
+    }
     return;
   }
-  productToParse.saveParseResults(parseResults);
+  try {
+    productToParse.saveParseResults(parseResults, source);
+  } catch (error) {
+    logger.error(
+      `${THIS_THREAD_ID}: error on saving parse results: ${error.message}`
+    );
+  }
+  
 };
 
 const populateProductsToParse = async () => {
@@ -257,26 +267,21 @@ const run = async () => {
   if (!page) {
     try {
       browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         ignoreHTTPSErrors: true,
       });
-      logger.info('puppeteer.launch');
-      logger.info('browser.newPage');
       page = await browser.newPage();
-      console.log(await page.browser().version());
-      logger.info('setUserAgent');
       await page.setUserAgent(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
       );
-      logger.info('setViewport');
       await page.setViewport({ width: 1920, height: 1080 });
-      logger.info('goto');
+
       await page.goto(pageUrl);
     } catch (error) {
       logger.error(error.message);
       return;
     }
-    console.log('browser started');
+    logger.info('browser started');
     intervals.push(
       setInterval(() => {
         try {

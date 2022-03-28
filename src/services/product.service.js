@@ -39,7 +39,7 @@ const getProductBySearchString = async (searchString, properties = {}) => {
 };
 
 exports.getProduct = async ({ id }, { id: UserId }) => {
-  return await UserProduct.findOne({
+  const product = await UserProduct.findOne({
     attributes: ['id', 'externalId', 'properties'],
     where: {
       id,
@@ -62,6 +62,7 @@ exports.getProduct = async ({ id }, { id: UserId }) => {
       },
     ],
   });
+  return product;
 };
 
 exports.listProducts = async ({ id: UserId }) => {
@@ -204,5 +205,10 @@ exports.updateProduct = async (
 };
 
 exports.deleteProduct = async (product) => {
-  product.destroy();
+  await product.destroy();
+  await Product.destroy({
+    where: {
+      id: product.ProductId,
+    },
+  });
 }

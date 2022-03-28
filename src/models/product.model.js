@@ -32,16 +32,17 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  Product.prototype.removeParseResults = async function () {
+  Product.prototype.removeParseResults = async function (source) {
     const { SearchResult } = Product.sequelize.models;
     SearchResult.destroy({
       where: {
+        source,
         ProductId: this.id,
       },
     });
   };
 
-  Product.prototype.saveParseResults = async function (parseResults) {
+  Product.prototype.saveParseResults = async function (parseResults, source) {
     const { SearchResult } = Product.sequelize.models;
     await SearchResult.destroy({
       where: {
@@ -49,14 +50,20 @@ module.exports = (sequelize, DataTypes) => {
       },
     });
     for (ind in parseResults) {
-      SearchResult.create({
-        ProductId: this.id,
-        properties: parseResults[ind],
-      });
+      try {
+        SearchResult.create({
+          ProductId: this.id,
+          source,
+          properties: parseResults[ind],
+        });
+      } catch (error) {
+        logger.error(`Error on saving parse results: ${error.message}`);
+        return;
+      }
     }
-    console.log(parseResults);
+    //console.log(parseResults);
     this.lastTimeParsed = moment().utc().format('YYYY-MM-DDTHH:mm:ssZ');
-    //this.save();
+    this.save();
   };
 
   /**
@@ -71,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Product.associate = (models) => {
     Product.hasMany(models.SearchResult);
-    Product.hasMany(models.SearchResult);
+    Product.hasMany(models.SearchString);
   };
 
   return Product;

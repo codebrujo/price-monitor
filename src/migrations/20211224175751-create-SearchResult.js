@@ -14,6 +14,10 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
         },
+        source: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
         properties: {
           type: Sequelize.JSON,
           allowNull: false,
